@@ -6,7 +6,8 @@ import pandas as pd
 import io
 
 app = Flask(__name__)
-app.secret_key = 'sua_chave_secreta_aqui'  # Substitua por uma chave segura
+import os
+app.secret_key = os.getenv('SECRET_KEY', 'sua_chave_secreta_aqui')
 
 # Inicializa o banco de dados
 def init_db():
