@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solicitações de Lavagem - FiveM</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        .sidebar {
+            height: 100vh;
+            width: 0;
+            position: fixed;
+            top: 0;
+            left: 0;
+            background-color: #111;
+            overflow-x: hidden;
+            transition: 0.3s;
+            padding-top: 60px;
+            z-index: 40;
+        }
+        .sidebar a {
+            padding: 10px 15px;
+            text-decoration: none;
+            font-size: 18px;
+            color: #0f0;
+            display: block;
+            transition: 0.2s;
+        }
+        .sidebar a:hover {
+            background-color: #333;
+        }
+        .sidebar .close-btn {
+            position: absolute;
+            top: 20px;
+            right: 25px;
+            font-size: 30px;
+            cursor: pointer;
+            color: #0f0;
+        }
+        .open-btn {
+            font-size: 20px;
+            cursor: pointer;
+            background-color: #111;
+            color: #0f0;
+            padding: 10px 15px;
+            border: none;
+            position: fixed;
+            top: 60px;
+            left: 10px;
+            z-index: 50;
+        }
+        .content {
+            margin-left: 10px;
+            padding: 20px;
+            transition: margin-left 0.3s;
+        }
+        .content.active {
+            margin-left: 250px;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 min-h-screen text-white">
+    <button class="open-btn" onclick="openNav()">☰ Menu</button>
+    <div id="sidebar" class="sidebar">
+        <span class="close-btn" onclick="closeNav()">×</span>
+        <a href="#" onclick="loadTemplate('home')">Home</a>
+        {% if is_admin %}
+        <a href="#" onclick="loadTemplate('requests')">Solicitações</a>
+        <a href="#" onclick="loadTemplate('cadastro')">Cadastro Admin</a>
+        {% endif %}
+        <a href="/logout">Sair</a>
+    </div>
+    <div id="main-content" class="content container mx-auto p-8">
+        <h1 class="text-2xl font-bold mb-6 text-center text-green-400">Solicitações de Lavagem de Dinheiro</h1>
+        {% if is_admin %}
+        <div class="mb-4">
+            <a href="/export_excel" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Exportar para Excel</a>
+        </div>
+        {% endif %}
+        <div class="overflow-x-auto">
+            <table class="w-full bg-gray-800 rounded-lg shadow-lg">
+                <thead>
+                    <tr class="bg-gray-700">
+                        <th class="p-3 text-left text-gray-300">Nome</th>
+                        <th class="p-3 text-left text-gray-300">ID FiveM</th>
+                        <th class="p-3 text-left text-gray-300">Família</th>
+                        <th class="p-3 text-left text-gray-300">Valor (GTA$)</th>
+                        <th class="p-3 text-left text-gray-300">Data</th>
+                        <th class="p-3 text-left text-gray-300">Status</th>
+                        <th class="p-3 text-left text-gray-300">Ação</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for request in requests %}
+                    <tr class="bg-gray-800">
+                        <td class="p-3">{{ request[0] }}</td>
+                        <td class="p-3">{{ request[1] }}</td>
+                        <td class="p-3">{{ request[2] }}</td>
+                        <td class="p-3">{{ request[3] }}</td>
+                        <td class="p-3">{{ request[4] }}</td>
+                        <td class="p-3">{{ request[5] }}</td>
+                        <td class="p-3 flex space-x-2">
+                            {% if request[5] == 'Pendente' and is_admin %}
+                            <button onclick="completeRequest({{ request[6] }})"
+                                    class="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700">
+                                Concluir
+                            </button>
+                            <button onclick="deleteRequest({{ request[6] }})"
+                                    class="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700">
+                                Excluir
+                            </button>
+                            {% else %}
+                            <span class="text-green-400">{{ request[5] }}</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <script>
+        function openNav() {
+            document.getElementById("sidebar").style.width = "250px";
+            document.getElementById("main-content").classList.add("active");
+        }
+        function closeNav() {
+            document.getElementById("sidebar").style.width = "0";
+            document.getElementById("main-content").classList.remove("active");
+        }
+        async function loadTemplate(templateName) {
+            try {
+                const response = await fetch(`/template/${templateName}`);
+                if (!response.ok) throw new Error("Erro ao carregar o template");
+                const data = await response.text();
+                document.getElementById("main-content").innerHTML = data;
+                closeNav();
+            } catch (error) {
+                console.error("Erro:", error);
+                document.getElementById("main-content").innerHTML = 
+                    "<h1 class='text-red-500'>Erro</h1><p>Não foi possível carregar a página.</p>";
+            }
+        }
+        async function completeRequest(requestId) {
+            try {
+                const response = await fetch(`/complete/${requestId}`, {
+                    method: 'POST'
+                });
+                const result = await response.json();
+                alert(result.message);
+                location.reload();
+            } catch (error) {
+                alert('Erro ao concluir solicitação: ' + error.message);
+            }
+        }
+        async function deleteRequest(requestId) {
+            try {
+                const response = await fetch(`/delete/${requestId}`, {
+                    method: 'POST'
+                });
+                const result = await response.json();
+                alert(result.message);
+                location.reload();
+            } catch (error) {
+                alert('Erro ao excluir solicitação: ' + error.message);
+            }
+        }
+    </script>
+</body>
+</html>

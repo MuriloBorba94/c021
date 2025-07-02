@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solicitação de Lavagem - FiveM</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        .sidebar {
+            height: 100vh;
+            width: 0;
+            position: fixed;
+            top: 0;
+            left: 0;
+            background-color: #111;
+            overflow-x: hidden;
+            transition: 0.3s;
+            padding-top: 60px;
+            z-index: 40;
+        }
+        .sidebar a {
+            padding: 10px 15px;
+            text-decoration: none;
+            font-size: 18px;
+            color: #0f0;
+            display: block;
+            transition: 0.2s;
+        }
+        .sidebar a:hover {
+            background-color: #333;
+        }
+        .sidebar .close-btn {
+            position: absolute;
+            top: 20px;
+            right: 25px;
+            font-size: 30px;
+            cursor: pointer;
+            color: #0f0;
+        }
+        .open-btn {
+            font-size: 20px;
+            cursor: pointer;
+            background-color: #111;
+            color: #0f0;
+            padding: 10px 15px;
+            border: none;
+            position: fixed;
+            top: 60px;
+            left: 10px;
+            z-index: 50;
+        }
+        .content {
+            margin-left: 10px;
+            padding: 20px;
+            transition: margin-left 0.3s;
+        }
+        .content.active {
+            margin-left: 250px;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white">
+    <button class="open-btn" onclick="openNav()">☰ Menu</button>
+    <div id="sidebar" class="sidebar">
+        <span class="close-btn" onclick="closeNav()">×</span>
+        <a href="#" onclick="loadTemplate('home')">Home</a>
+        {% if is_admin %}
+        <a href="#" onclick="loadTemplate('requests')">Solicitações</a>
+        <a href="#" onclick="loadTemplate('cadastro')">Cadastro Admin</a>
+        {% endif %}
+        <a href="/logout">Sair</a>
+    </div>
+    <div id="main-content" class="content flex items-center justify-center min-h-screen">
+        <div class="bg-gray-800 p-8 rounded-lg shadow-lg w-full max-w-md">
+            <h1 class="text-2xl font-bold mb-6 text-center text-green-400">Solicitação de Lavagem de Dinheiro - FiveM</h1>
+            <form id="launderingForm" class="space-y-4">
+                <div>
+                    <label for="client_name" class="block text-sm font-medium text-gray-300">Nome do Cliente</label>
+                    <input type="text" id="client_name" name="client_name" required
+                           class="mt-1 block w-full p-2 border border-gray-600 rounded-md bg-gray-700 text-white">
+                </div>
+                <div>
+                    <label for="fivem_id" class="block text-sm font-medium text-gray-300">ID do FiveM</label>
+                    <input type="text" id="fivem_id" name="fivem_id" required
+                           class="mt-1 block w-full p-2 border border-gray-600 rounded-md bg-gray-700 text-white">
+                </div>
+                <div>
+                    <label for="amount" class="block text-sm font-medium text-gray-300">Valor para Lavagem (GTA$)</label>
+                    <input type="number" id="amount" name="amount" step="0.01" required
+                           class="mt-1 block w-full p-2 border border-gray-600 rounded-md bg-gray-700 text-white">
+                </div>
+                <button type="submit" class="w-full bg-green-600 text-white p-2 rounded-md hover:bg-green-700">
+                    Registrar Solicitação
+                </button>
+            </form>
+            <a href="/logout" class="block text-center mt-4 text-green-400 hover:underline">Sair</a>
+        </div>
+    </div>
+    <script>
+        function openNav() {
+            document.getElementById("sidebar").style.width = "250px";
+            document.getElementById("main-content").classList.add("active");
+        }
+        function closeNav() {
+            document.getElementById("sidebar").style.width = "0";
+            document.getElementById("main-content").classList.remove("active");
+        }
+        async function loadTemplate(templateName) {
+            try {
+                const response = await fetch(`/template/${templateName}`);
+                if (!response.ok) throw new Error("Erro ao carregar o template");
+                const data = await response.text();
+                document.getElementById("main-content").innerHTML = data;
+                closeNav();
+            } catch (error) {
+                console.error("Erro:", error);
+                document.getElementById("main-content").innerHTML = 
+                    "<h1 class='text-red-500'>Erro</h1><p>Não foi possível carregar a página.</p>";
+            }
+        }
+        document.getElementById('launderingForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            try {
+                const response = await fetch('/register', {
+                    method: 'POST',
+                    body: formData
+                });
+                const result = await response.json();
+                alert(result.message);
+                e.target.reset();
+            } catch (error) {
+                alert('Erro ao enviar solicitação: ' + error.message);
+            }
+        });
+    </script>
+</body>
+</html>

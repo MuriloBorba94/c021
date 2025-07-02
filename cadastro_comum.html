@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro - FiveM Lavagem</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-900 flex items-center justify-center min-h-screen">
+    <div class="bg-gray-800 p-8 rounded-lg shadow-lg w-full max-w-md">
+        <h1 class="text-2xl font-bold mb-6 text-center text-green-400">Cadastro - FiveM Lavagem</h1>
+        {% if error %}
+        <p class="text-red-400 text-center mb-4">{{ error }}</p>
+        {% endif %}
+        <form method="POST" class="space-y-4">
+            <div>
+                <label for="name" class="block text-sm font-medium text-gray-300">Nome ou Vulgo</label>
+                <input type="text" id="name" name="name" required
+                       class="mt-1 block w-full p-2 border border-gray-600 rounded-md bg-gray-700 text-white">
+            </div>
+            <div>
+                <label for="fivem_id" class="block text-sm font-medium text-gray-300">ID do FiveM</label>
+                <input type="text" id="fivem_id" name="fivem_id" required
+                       class="mt-1 block w-full p-2 border border-gray-600 rounded-md bg-gray-700 text-white">
+            </div>
+            <div>
+                <label for="family" class="block text-sm font-medium text-gray-300">Família</label>
+                <input type="text" id="family" name="family" required
+                       class="mt-1 block w-full p-2 border border-gray-600 rounded-md bg-gray-700 text-white">
+            </div>
+            <div>
+                <label for="password" class="block text-sm font-medium text-gray-300">Senha</label>
+                <input type="password" id="password" name="password" required
+                       class="mt-1 block w-full p-2 border border-gray-600 rounded-md bg-gray-700 text-white">
+            </div>
+            <button type="submit" class="w-full bg-green-600 text-white p-2 rounded-md hover:bg-green-700">
+                Cadastrar
+            </button>
+        </form>
+        <p class="text-center mt-4"><a href="/login" class="text-green-400 hover:underline">Já tem conta? Faça login</a></p>
+    </div>
+</body>
+</html>
