@@ -7,7 +7,7 @@ import io
 
 app = Flask(__name__)
 import os
-app.secret_key = os.getenv('SECRET_KEY', 'sua_chave_secreta_aqui')
+app.secret_key = os.getenv('SECRET_KEY', 'qaz123')
 
 # Inicializa o banco de dados
 def init_db():
